@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniStream Pro - Universal Video & Audio Downloader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <div class="app-layout">
+    <!-- Top Navigation Bar -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-badge">
+          <div class="brand-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="6 3 20 12 6 21 6 3" fill="currentColor" fill-opacity="0.2"></polygon>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <div class="brand-title">OMNI<span>STREAM</span> <span class="pro-tag">PRO</span></div>
+            <div class="brand-subtitle">Universal Video & Audio Extractor</div>
+          </div>
+        </div>
+
+        <div class="engine-badge" id="engineStatusBadge" title="Engine Status">
+          <span class="status-pulse"></span>
+          <span class="engine-label" id="engineVersionLabel">yt-dlp · Ready</span>
+        </div>
+      </div>
+
+      <!-- Mode Tabs -->
+      <nav class="nav-modes">
+        <button id="tabSingle" class="nav-tab active" type="button">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+          <span>Single Video</span>
+        </button>
+        <button id="tabBatch" class="nav-tab" type="button">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+          <span>Batch Queue</span>
+          <span class="badge-count" id="batchTabCount">0</span>
+        </button>
+      </nav>
+
+      <!-- Action Utilities -->
+      <div class="header-right">
+        <button id="toggleTerminalBtn" class="action-btn" type="button" title="Toggle Live Console Logs">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 17 10 11 4 5"></polyline>
+            <line x1="12" y1="19" x2="20" y2="19"></line>
+          </svg>
+          <span>Console</span>
+          <span class="active-dot" id="logActivityDot"></span>
+        </button>
+
+        <button id="openSettingsBtn" class="action-btn" type="button" title="Delivery & Engine Settings">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+
+        <button id="themeToggle" class="action-btn theme-btn" type="button" title="Toggle Theme" aria-label="Toggle Dark and Light theme">
+          <span class="theme-icon">☾</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <div class="content-container">
+
+        <!-- ==================== VIEW 1: SINGLE DOWNLOAD ==================== -->
+        <section id="singleView" class="view-panel active">
+          <!-- Hero Input Box -->
+          <div class="hero-card">
+            <div class="hero-header">
+              <div class="hero-title-group">
+                <span class="sub-heading">QUICK DOWNLOAD</span>
+                <h2>Capture any video or audio stream</h2>
+              </div>
+              <div class="platform-indicators" id="platformBadges">
+                <span class="platform-tag youtube">YouTube</span>
+                <span class="platform-tag tiktok">TikTok</span>
+                <span class="platform-tag instagram">Instagram</span>
+                <span class="platform-tag x-twitter">X (Twitter)</span>
+                <span class="platform-tag vimeo">Vimeo</span>
+                <span class="platform-tag plus">+ 1,000s more</span>
+              </div>
+            </div>
+
+            <!-- URL Input Bar -->
+            <div class="url-input-container">
+              <div class="input-icon-wrapper">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+              </div>
+
+              <input
+                type="text"
+                id="urlInput"
+                class="url-input-field"
+                placeholder="Paste video link here (YouTube, TikTok, Twitter/X, Instagram, Vimeo...)"
+                autocomplete="off"
+                spellcheck="false"
+              />
+
+              <div class="input-actions">
+                <button id="clearUrlBtn" class="icon-action-btn hidden" type="button" title="Clear input">✕</button>
+                <button id="pasteClipboardBtn" class="pill-btn secondary" type="button" title="Paste from clipboard">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  </svg>
+                  <span>Paste</span>
+                </button>
+                <button id="inspectButton" class="pill-btn primary" type="button">
+                  <span class="btn-spinner hidden" id="inspectSpinner"></span>
+                  <span class="btn-text">Detect Media</span>
+                  <svg class="btn-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Detected Platform Info Banner -->
+            <div id="detectedPlatformBanner" class="detected-banner hidden">
+              <span class="platform-detected-pill" id="platformDetectedLabel">Detected Platform</span>
+              <span class="detected-status" id="detectedStatusText">Ready for extraction</span>
+            </div>
+          </div>
+
+          <!-- Media Preview & Format Picker Card (Revealed after inspect) -->
+          <div id="previewCard" class="preview-card hidden">
+            <div class="preview-layout">
+              <!-- Thumbnail Column -->
+              <div class="thumbnail-wrapper">
+                <img id="videoThumb" class="thumbnail-img" src="" alt="Video thumbnail preview" />
+                <div class="duration-badge" id="videoDuration">00:00</div>
+                <div class="resolution-badge" id="videoResolutionBadge">HD</div>
+                <div class="thumbnail-overlay">
+                  <svg viewBox="0 0 24 24" width="36" height="36" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Metadata & Format Options Column -->
+              <div class="preview-details">
+                <div class="preview-header">
+                  <h3 id="videoTitle" class="video-title" title="Video Title">Loading video title...</h3>
+                  <div class="uploader-row">
+                    <span class="uploader-badge">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                      <span id="videoUploader">Author</span>
+                    </span>
+                    <span class="meta-dot">·</span>
+                    <span class="extractor-badge" id="videoExtractor">yt-dlp</span>
+                  </div>
+                </div>
+
+                <!-- Quality Selection Chips -->
+                <div class="quality-selector-group">
+                  <div class="selector-label">SELECT FORMAT & QUALITY</div>
+                  <div class="preset-chips">
+                    <button type="button" class="preset-chip active" data-preset="video-1080">
+                      <span class="chip-icon">💎</span>
+                      <div class="chip-text">
+                        <strong>1080p Full HD</strong>
+                        <small>Max Crisp Resolution (MP4)</small>
+                      </div>
+                    </button>
+                    <button type="button" class="preset-chip" data-preset="video-720">
+                      <span class="chip-icon">⚡</span>
+                      <div class="chip-text">
+                        <strong>720p HD</strong>
+                        <small>High Definition (MP4)</small>
+                      </div>
+                    </button>
+                    <button type="button" class="preset-chip" data-preset="video-480">
+                      <span class="chip-icon">📱</span>
+                      <div class="chip-text">
+                        <strong>480p SD</strong>
+                        <small>Standard Definition (MP4)</small>
+                      </div>
+                    </button>
+                    <button type="button" class="preset-chip" data-preset="video-360">
+                      <span class="chip-icon">📺</span>
+                      <div class="chip-text">
+                        <strong>360p Mobile</strong>
+                        <small>Compact & Fast (MP4)</small>
+                      </div>
+                    </button>
+                    <button type="button" class="preset-chip" data-preset="audio-only">
+                      <span class="chip-icon">🎵</span>
+                      <div class="chip-text">
+                        <strong>Audio MP3</strong>
+                        <small>Highest Bitrate (MP3)</small>
+                      </div>
+                    </button>
+                    <button type="button" class="preset-chip" data-preset="custom">
+                      <span class="chip-icon">⚙️</span>
+                      <div class="chip-text">
+                        <strong>Custom Stream</strong>
+                        <small>Inspect All Codecs</small>
+                      </div>
+                    </button>
+                  </div>
+
+                  <!-- Custom Formats Dropdown (shown only when custom stream is selected) -->
+                  <div id="customFormatWrapper" class="custom-format-row hidden">
+                    <label for="formatSelect">Select Specific Stream:</label>
+                    <div class="select-wrapper">
+                      <select id="formatSelect" class="format-select">
+                        <option value="bv*+ba/b">Best video + audio (Auto merge)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Save Folder Destination -->
+                <div class="destination-row">
+                  <div class="destination-info">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <span class="destination-label">Save to:</span>
+                    <span id="outputDisplay" class="destination-path" title="Click to open folder">Default Downloads</span>
+                  </div>
+                  <div class="destination-buttons">
+                    <button id="folderButton" class="folder-action-btn" type="button" title="Change Destination Folder">
+                      <span>Change...</span>
+                    </button>
+                    <button id="openFolderBtn" class="folder-action-btn secondary" type="button" title="Open Destination Folder in Explorer">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Auxiliary Toggles -->
+                <div class="options-row">
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="embedThumbnailCheck">
+                    <span class="checkmark"></span>
+                    <span>Embed Thumbnail Cover</span>
+                  </label>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="embedSubsCheck">
+                    <span class="checkmark"></span>
+                    <span>Embed Subtitles</span>
+                  </label>
+                </div>
+
+                <!-- Main Download Button -->
+                <button id="downloadButton" class="download-hero-btn" type="button">
+                  <div class="btn-glow-layer"></div>
+                  <svg class="download-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  <span id="downloadBtnText">Start Download</span>
+                  <span class="kbd-hint"><kbd>Enter</kbd></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 2: BATCH QUEUE ==================== -->
+        <section id="batchView" class="view-panel">
+          <div class="hero-card batch-hero">
+            <div class="hero-header">
+              <div class="hero-title-group">
+                <span class="sub-heading">BATCH MANAGER</span>
+                <h2>Queue multiple videos simultaneously</h2>
+              </div>
+              <div class="batch-counter" id="batchBadge">0 URLs in queue</div>
+            </div>
+
+            <div class="batch-textarea-wrapper">
+              <textarea
+                id="batchInput"
+                class="batch-textarea"
+                rows="6"
+                placeholder="Paste video links here, one per line:&#10;https://www.youtube.com/watch?v=...&#10;https://www.tiktok.com/@...&#10;https://x.com/.../status/..."
+              ></textarea>
+            </div>
+
+            <div class="batch-controls">
+              <div class="batch-options">
+                <label class="custom-checkbox">
+                  <input type="checkbox" id="batchAudioOnly">
+                  <span class="checkmark"></span>
+                  <span>Audio Only for all items (MP3)</span>
+                </label>
+              </div>
+              <div class="batch-action-buttons">
+                <button id="clearBatchBtn" class="pill-btn secondary" type="button">Clear List</button>
+                <button id="startBatchBtn" class="pill-btn primary" type="button">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  <span>Start Batch Download</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Batch Queue Items List -->
+            <div class="queue-container">
+              <div class="queue-header">
+                <h4>Download Queue</h4>
+                <span id="queueProgressCount">0 / 0 Completed</span>
+              </div>
+              <div id="queueList" class="queue-list">
+                <div class="empty-queue-state">
+                  <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                  </svg>
+                  <p>Paste multiple links above to queue batch downloads</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== LIVE TRANSFER HUD ==================== -->
+        <section id="transferHud" class="transfer-hud hidden">
+          <div class="hud-content">
+            <div class="hud-top">
+              <div class="hud-info">
+                <div class="hud-eyebrow">
+                  <span class="live-indicator"></span>
+                  <span id="hudStatusTitle">ACTIVE TRANSFER</span>
+                </div>
+                <h3 id="progressTitle" class="hud-filename">Preparing download...</h3>
+              </div>
+              <div class="hud-percentage-wrapper">
+                <div class="hud-percent" id="progressPercent">0%</div>
+                <div class="hud-state" id="progressDetail">Starting...</div>
+              </div>
+            </div>
+
+            <!-- Animated Shimmer Progress Bar -->
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" id="progressBar">
+                <div class="progress-shimmer"></div>
+              </div>
+            </div>
+
+            <!-- Telemetry Stats & Action Controls -->
+            <div class="hud-telemetry">
+              <div class="stat-pill">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                <span class="stat-label">Speed:</span>
+                <strong id="speedText">—</strong>
+              </div>
+
+              <div class="stat-pill">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span class="stat-label">ETA:</span>
+                <strong id="etaText">—</strong>
+              </div>
+
+              <div class="hud-actions">
+                <button id="pauseButton" class="hud-btn" type="button" disabled>
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                  </svg>
+                  <span>Pause</span>
+                </button>
+                <button id="cancelButton" class="hud-btn danger" type="button" disabled>
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                  <span>Cancel</span>
+                </button>
+                <button id="revealCompletedBtn" class="hud-btn success hidden" type="button">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  <span>Open Folder</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== DOWNLOAD HISTORY / RECENT ==================== -->
+        <section class="history-section">
+          <div class="history-header">
+            <div class="history-heading-group">
+              <span class="sub-heading">LIBRARY</span>
+              <h3>Completed Downloads</h3>
+            </div>
+            <button id="clearHistory" class="text-action-btn" type="button">Clear Library</button>
+          </div>
+
+          <div id="historyList" class="history-grid">
+            <div class="empty-history-state">
+              <div class="empty-history-icon">
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </div>
+              <p>Your finished downloads will be archived here for instant access.</p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- ==================== SETTINGS MODAL ==================== -->
+    <div id="settingsModal" class="modal-overlay hidden">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <h3>Delivery & Engine Settings</h3>
+            <p>Configure network proxy, cookies, and extractor settings</p>
+          </div>
+          <button id="closeSettingsBtn" class="modal-close-btn" type="button">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Proxy Setting -->
+          <div class="form-group">
+            <label for="proxyInput">Custom Network Proxy (Optional)</label>
+            <input
+              type="text"
+              id="proxyInput"
+              class="form-control"
+              placeholder="e.g. http://127.0.0.1:7890 or socks5://127.0.0.1:1080"
+            />
+            <small class="form-hint">Route extraction requests through an authorized local proxy.</small>
+          </div>
+
+          <!-- Browser Cookies Option -->
+          <div class="form-group">
+            <label for="browserCookieSelect">Import Cookies from Browser (Optional)</label>
+            <select id="browserCookieSelect" class="form-control">
+              <option value="none">None (Default - Auto-Bypass via Android/iOS Player)</option>
+              <option value="chrome">Google Chrome</option>
+              <option value="edge">Microsoft Edge</option>
+              <option value="firefox">Mozilla Firefox</option>
+              <option value="brave">Brave Browser</option>
+            </select>
+            <small class="form-hint">Only needed if a video is member-exclusive or strictly requires your login account.</small>
+          </div>
+
+          <!-- Cookies Setting -->
+          <div class="form-group">
+            <label for="cookiesInput">Netscape Cookies File (Optional)</label>
+            <div class="input-with-button">
+              <input
+                type="text"
+                id="cookiesInput"
+                class="form-control"
+                placeholder="Path to cookies.txt"
+              />
+              <button id="browseCookiesBtn" class="pill-btn secondary" type="button">Browse...</button>
+            </div>
+            <small class="form-hint">Alternative manual file option for cookies.</small>
+          </div>
+
+          <!-- Engine Status Card -->
+          <div class="engine-info-card">
+            <div class="engine-info-title">Extractor Engine Status</div>
+            <div class="engine-info-row">
+              <span>Backend Core:</span>
+              <strong id="modalEngineCore">yt-dlp (Python)</strong>
+            </div>
+            <div class="engine-info-row">
+              <span>Installed Version:</span>
+              <strong id="modalEngineVer">Checking...</strong>
+            </div>
+            <div class="engine-info-row">
+              <span>FFmpeg Multiplexer:</span>
+              <strong class="status-ok">Available & Linked</strong>
+            </div>
+          </div>
+
+          <!-- Legal Disclaimer -->
+          <div class="legal-notice">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <p>
+              Please download content only if you have the legal right or permission to do so.
+              This tool does not circumvent DRM, paywalls, or encryption.
+            </p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="saveSettingsBtn" class="pill-btn primary" type="button">Save & Apply</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== LIVE TERMINAL CONSOLE DRAWER ==================== -->
+    <aside id="terminalDrawer" class="terminal-drawer hidden">
+      <div class="terminal-header">
+        <div class="terminal-title">
+          <span class="term-dot"></span>
+          <span>yt-dlp Live Activity Stream</span>
+        </div>
+        <div class="terminal-actions">
+          <button id="clearLogBtn" class="term-btn" type="button">Clear Console</button>
+          <button id="copyLogBtn" class="term-btn" type="button">Copy All</button>
+          <button id="closeTerminalBtn" class="term-btn close" type="button">✕</button>
+        </div>
+      </div>
+      <div id="terminalBody" class="terminal-body">
+        <div class="term-line system">[system] Engine listening on IPC channel. Ready for extraction requests.</div>
+      </div>
+    </aside>
+
+    <!-- Floating Toast Notification -->
+    <div id="toastDock" class="toast-dock"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

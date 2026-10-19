@@ -1,0 +1,27 @@
+{
+  "name": "omnistream",
+  "version": "1.0.0",
+  "description": "OmniStream - High-performance desktop universal video & audio extractor powered by yt-dlp & Electron.",
+  "main": "src/main.js",
+  "author": "MD ARFAA TAJ (SAVAS)",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "dist": "electron-builder",
+    "check": "node --check src/main.js && node --check src/preload.js && node --check src/renderer/app.js"
+  },
+  "devDependencies": {
+    "electron": "^32.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.arfaataj.omnistream",
+    "productName": "OmniStream",
+    "files": ["src/**/*", "README.md", "LICENSE"],
+    "asar": true,
+    "win": { "target": "nsis" },
+    "mac": { "target": "dmg", "category": "public.app-category.video" },
+    "linux": { "target": "AppImage", "category": "AudioVideo" }
+  }
+}
