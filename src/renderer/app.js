@@ -2,50 +2,137 @@
 // Universal Video Downloader Pro - Renderer Application Logic
 // ==========================================================================
 
-// Fallback mock for browser inspection & standalone preview
+// Check environment: native desktop or web browser showcase
 if (typeof window.downloader === 'undefined') {
+  window.isWebDemo = true;
   let progressCb = null;
   let finishedCb = null;
   let activeTimer = null;
 
   window.downloader = {
-    chooseFolder: async () => 'Downloads (Browser Demo)',
+    chooseFolder: async () => 'Downloads (Desktop Mode Required)',
     chooseFile: async () => 'cookies.txt',
     getDefaultFolder: async () => 'Downloads (Browser Demo)',
-    openFolder: async folder => showToast('Desktop feature: opens folder in Windows Explorer', 'info'),
-    showItemInFolder: async p => showToast('Desktop feature: reveals file in Windows Explorer', 'info'),
+    openFolder: async () => showToast('Desktop feature: opens folder in Windows Explorer', 'info'),
+    showItemInFolder: async () => showToast('Desktop feature: reveals file in Windows Explorer', 'info'),
     readClipboard: async () => '',
     checkEngine: async () => ({ ok: true, version: '2026.08.19 (Web Demo)' }),
-    inspectUrl: async ({ url }) => ({
-      ok: true,
-      info: {
-        id: 'sample_id',
-        title: 'OmniStream Demo Stream - 1080p Full HD Video',
-        uploader: 'OmniStream Media Studio',
-        duration: 215,
-        thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=640&q=80',
-        webpage_url: url,
-        extractor: 'youtube',
-        formats: [
-          { id: '137+140', resolution: '1080p FHD', ext: 'mp4', filesize: 54500000, height: 1080 },
-          { id: '22', resolution: '720p HD', ext: 'mp4', filesize: 28000000, height: 720 },
-          { id: '18', resolution: '360p', ext: 'mp4', filesize: 12000000, height: 360 },
-          { id: '140', resolution: 'Audio only', ext: 'mp3', abr: 320, filesize: 4200000 }
-        ]
+    inspectUrl: async ({ url }) => {
+      const trimmedUrl = (url || '').trim();
+
+      // 1. YouTube & YouTube Shorts / Music
+      const ytMatch = trimmedUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
+      if (ytMatch) {
+        const videoId = ytMatch[1];
+        let title = `YouTube Video [${videoId}]`;
+        let uploader = 'YouTube Creator';
+        let thumbnail = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+
+        try {
+          const oembedRes = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+          if (oembedRes.ok) {
+            const odata = await oembedRes.json();
+            if (odata.title) title = odata.title;
+            if (odata.author_name) uploader = odata.author_name;
+          }
+        } catch (e) {
+          console.warn('YouTube oEmbed inspection fallback:', e);
+        }
+
+        return {
+          ok: true,
+          info: {
+            id: videoId,
+            title,
+            uploader,
+            duration: 1324,
+            thumbnail,
+            fallbackThumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+            webpage_url: `https://www.youtube.com/watch?v=${videoId}`,
+            extractor: 'youtube',
+            formats: [
+              { id: '1080p', resolution: '1080p FHD', ext: 'mp4', filesize: 145000000, height: 1080 },
+              { id: '720p', resolution: '720p HD', ext: 'mp4', filesize: 75000000, height: 720 },
+              { id: '480p', resolution: '480p SD', ext: 'mp4', filesize: 38000000, height: 480 },
+              { id: '360p', resolution: '360p Mobile', ext: 'mp4', filesize: 18000000, height: 360 },
+              { id: 'audio-mp3', resolution: 'Audio MP3', ext: 'mp3', abr: 320, filesize: 12000000 }
+            ]
+          }
+        };
       }
-    }),
+
+      // 2. Vimeo
+      const vimeoMatch = trimmedUrl.match(/vimeo\.com\/(\d+)/i);
+      if (vimeoMatch) {
+        const vId = vimeoMatch[1];
+        let title = `Vimeo Video (${vId})`;
+        let uploader = 'Vimeo Creator';
+        let thumbnail = 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=640&q=80';
+        let duration = 210;
+        try {
+          const vres = await fetch(`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(trimmedUrl)}`);
+          if (vres.ok) {
+            const vdata = await vres.json();
+            if (vdata.title) title = vdata.title;
+            if (vdata.author_name) uploader = vdata.author_name;
+            if (vdata.thumbnail_url) thumbnail = vdata.thumbnail_url;
+            if (vdata.duration) duration = vdata.duration;
+          }
+        } catch (e) {}
+
+        return {
+          ok: true,
+          info: {
+            id: vId,
+            title,
+            uploader,
+            duration,
+            thumbnail,
+            webpage_url: trimmedUrl,
+            extractor: 'vimeo',
+            formats: [
+              { id: '1080p', resolution: '1080p FHD', ext: 'mp4', filesize: 110000000, height: 1080 },
+              { id: '720p', resolution: '720p HD', ext: 'mp4', filesize: 55000000, height: 720 }
+            ]
+          }
+        };
+      }
+
+      // 3. Generic web URLs
+      let host = 'Web Media';
+      try {
+        host = new URL(trimmedUrl).hostname.replace(/^www\./, '');
+      } catch (e) {}
+
+      return {
+        ok: true,
+        info: {
+          id: 'web_stream',
+          title: `${host.charAt(0).toUpperCase() + host.slice(1)} Stream`,
+          uploader: host,
+          duration: 180,
+          thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=640&q=80',
+          webpage_url: trimmedUrl,
+          extractor: host.split('.')[0] || 'generic',
+          formats: [
+            { id: 'best', resolution: 'Best Available', ext: 'mp4', filesize: 52000000, height: 1080 },
+            { id: 'audio', resolution: 'Audio MP3', ext: 'mp3', abr: 320, filesize: 6000000 }
+          ]
+        }
+      };
+    },
     startDownload: async () => {
       let pct = 0;
       clearInterval(activeTimer);
       activeTimer = setInterval(() => {
         pct += 20;
         if (progressCb) {
-          progressCb({ percent: Math.min(pct, 99), speed: '18.4 MB/s', eta: '00:02' });
+          progressCb({ percent: Math.min(pct, 99), speed: '24.6 MB/s', eta: '00:02' });
         }
         if (pct >= 100) {
           clearInterval(activeTimer);
           if (finishedCb) {
-            finishedCb({ ok: true, filePath: 'OmniStream_Demo.mp4' });
+            finishedCb({ ok: true, filePath: 'OmniStream_Downloaded_Video.mp4' });
           }
         }
       }, 350);
@@ -55,8 +142,8 @@ if (typeof window.downloader === 'undefined') {
     cancelDownload: async () => { clearInterval(activeTimer); return { ok: true }; },
     onProgress: cb => { progressCb = cb; },
     onFinished: cb => { finishedCb = cb; },
-    onLog: cb => {},
-    onRawLog: cb => {}
+    onLog: () => {},
+    onRawLog: () => {}
   };
 }
 
@@ -214,6 +301,14 @@ async function initEngineAndPaths() {
     }
   } catch (err) {
     engineVersionLabel.textContent = 'Engine Ready';
+  }
+
+  // Activate web showcase banner if running on web
+  if (window.isWebDemo) {
+    const banner = $('#webShowcaseBanner');
+    if (banner) banner.classList.remove('hidden');
+    engineVersionLabel.textContent = 'yt-dlp (Web Demo)';
+    modalEngineVer.textContent = 'Web Showcase Mode';
   }
 }
 
@@ -397,7 +492,11 @@ function renderPreviewCard(info) {
   if (info.thumbnail) {
     videoThumb.src = info.thumbnail;
     videoThumb.onerror = () => {
-      videoThumb.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="225" viewBox="0 0 400 225"><rect width="400" height="225" fill="%231e293b"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-family="sans-serif" font-size="16">Preview Thumbnail</text></svg>';
+      if (info.fallbackThumbnail && videoThumb.src !== info.fallbackThumbnail) {
+        videoThumb.src = info.fallbackThumbnail;
+      } else {
+        videoThumb.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="225" viewBox="0 0 400 225"><rect width="400" height="225" fill="%231e293b"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-family="sans-serif" font-size="16">Preview Thumbnail</text></svg>';
+      }
     };
   } else {
     videoThumb.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="225" viewBox="0 0 400 225"><rect width="400" height="225" fill="%231e293b"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-family="sans-serif" font-size="16">Video Stream</text></svg>';
@@ -532,8 +631,15 @@ outputDisplay.addEventListener('click', () => {
 async function handleStartDownload() {
   const url = urlInput.value.trim();
   if (!url) return showToast('Paste a video URL first.', 'error');
-  if (!state.output) return showToast('Select a destination folder first.', 'error');
   if (state.downloading) return;
+
+  // If in web showcase mode, display delivery options modal
+  if (window.isWebDemo) {
+    openWebDownloadModal(url);
+    return;
+  }
+
+  if (!state.output) return showToast('Select a destination folder first.', 'error');
 
   const audioOnly = state.selectedPreset === 'audio-only';
   let targetFormat = 'bestvideo+bestaudio/best';
@@ -1017,9 +1123,115 @@ saveSettingsBtn.addEventListener('click', () => {
   appendLogLine(`[config] Delivery settings updated (Proxy: ${state.options.proxy || 'none'}, Cookies: ${state.options.cookies || 'none'}, Browser: ${state.options.browser})`, 'info');
 });
 
+// ==========================================================================
+// Web Download Delivery Modal & Showcase Handlers
+// ==========================================================================
+
+function openWebDownloadModal(url) {
+  const modal = $('#webDownloadModal');
+  const titleEl = $('#modalVideoTitle');
+  const directBtn = $('#webDirectDownloadBtn');
+  if (!modal) return;
+
+  if (state.info?.title) {
+    titleEl.textContent = state.info.title;
+  } else {
+    titleEl.textContent = 'Selected Media Stream';
+  }
+
+  const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
+  if (ytMatch) {
+    const vId = ytMatch[1];
+    directBtn.href = `https://www.y2mate.com/youtube/${vId}`;
+  } else {
+    directBtn.href = `https://cobalt.tools/?u=${encodeURIComponent(url)}`;
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function runWebHudSimulation(url) {
+  const audioOnly = state.selectedPreset === 'audio-only';
+  let targetFormat = 'bestvideo+bestaudio/best';
+  if (audioOnly) targetFormat = 'bestaudio/best';
+  else if (state.selectedPreset === 'video-720') targetFormat = 'bestvideo[height<=720]+bestaudio/best';
+
+  state.downloading = true;
+  state.paused = false;
+  downloadButton.disabled = true;
+  pauseButton.disabled = false;
+  cancelButton.disabled = false;
+  revealCompletedBtn.classList.add('hidden');
+
+  transferHud.classList.remove('hidden');
+  progressTitle.textContent = state.info?.title || 'Downloading media...';
+  progressPercent.textContent = '0%';
+  progressDetail.textContent = 'Initiating download stream...';
+  progressBar.style.width = '2%';
+  speedText.textContent = '—';
+  etaText.textContent = '—';
+  transferHud.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  appendLogLine(`[download] Starting: ${url}`, 'download');
+  appendLogLine(`[download] Format rule: ${targetFormat} | Output: ${state.output}`, 'download');
+
+  window.downloader.startDownload({
+    url,
+    format: targetFormat,
+    output: state.output,
+    options: state.options,
+    audioOnly
+  });
+}
+
+const webDownloadModal = $('#webDownloadModal');
+const closeWebDownloadBtn = $('#closeWebDownloadBtn');
+const copyRunCmdBtn = $('#copyRunCmdBtn');
+const downloadThumbnailBtn = $('#downloadThumbnailBtn');
+const simulateDesktopHudBtn = $('#simulateDesktopHudBtn');
+const dismissBannerBtn = $('#dismissBannerBtn');
+
+dismissBannerBtn?.addEventListener('click', () => {
+  $('#webShowcaseBanner')?.classList.add('hidden');
+});
+
+closeWebDownloadBtn?.addEventListener('click', () => {
+  webDownloadModal?.classList.add('hidden');
+});
+
+webDownloadModal?.addEventListener('click', e => {
+  if (e.target === webDownloadModal) {
+    webDownloadModal.classList.add('hidden');
+  }
+});
+
+copyRunCmdBtn?.addEventListener('click', () => {
+  const code = $('#desktopRunCode')?.textContent || 'git clone https://github.com/ArfaaTaj-savas/OmniStream.git && npm install && npm start';
+  navigator.clipboard.writeText(code);
+  showToast('Copied desktop command to clipboard!', 'success');
+});
+
+downloadThumbnailBtn?.addEventListener('click', () => {
+  if (state.info?.thumbnail) {
+    window.open(state.info.thumbnail, '_blank');
+    showToast('Opening HD cover image in new tab...', 'info');
+  } else {
+    showToast('No thumbnail found for this video.', 'warning');
+  }
+});
+
+simulateDesktopHudBtn?.addEventListener('click', () => {
+  webDownloadModal?.classList.add('hidden');
+  const url = urlInput.value.trim();
+  runWebHudSimulation(url);
+});
+
 // Global Keyboard Escape
 window.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
+    if (webDownloadModal && !webDownloadModal.classList.contains('hidden')) {
+      webDownloadModal.classList.add('hidden');
+    }
     if (!settingsModal.classList.contains('hidden')) {
       settingsModal.classList.add('hidden');
     }

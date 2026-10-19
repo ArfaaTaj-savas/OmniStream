@@ -83,6 +83,18 @@
     <main class="app-main">
       <div class="content-container">
 
+        <!-- Web Showcase Mode Banner (Active when viewed via Web) -->
+        <div id="webShowcaseBanner" class="web-showcase-banner hidden">
+          <div class="showcase-content">
+            <span class="showcase-tag">🌐 WEB SHOWCASE</span>
+            <span class="showcase-text">Real video detection active. To enable native 1080p/4K downloads with local FFmpeg multiplexing, run the desktop app.</span>
+          </div>
+          <div class="showcase-actions">
+            <a href="https://github.com/ArfaaTaj-savas/OmniStream#installation--setup" target="_blank" class="showcase-link">Desktop Guide</a>
+            <button id="dismissBannerBtn" class="showcase-close" type="button" title="Dismiss">✕</button>
+          </div>
+        </div>
+
         <!-- ==================== VIEW 1: SINGLE DOWNLOAD ==================== -->
         <section id="singleView" class="view-panel active">
           <!-- Hero Input Box -->
@@ -533,6 +545,69 @@
 
         <div class="modal-footer">
           <button id="saveSettingsBtn" class="pill-btn primary" type="button">Save & Apply</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== WEB DOWNLOAD OPTIONS MODAL ==================== -->
+    <div id="webDownloadModal" class="modal-overlay hidden">
+      <div class="modal-dialog web-download-dialog">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <h3>Download Stream Options</h3>
+            <p id="modalVideoTitle">Media Stream Ready</p>
+          </div>
+          <button id="closeWebDownloadBtn" class="modal-close-btn" type="button">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="web-demo-notice">
+            <span class="notice-badge">🌐 WEB SHOWCASE MODE</span>
+            <p>You are viewing OmniStream in the browser. Select how you would like to download this video:</p>
+          </div>
+
+          <!-- Method 1: Instant Browser Download Gateway -->
+          <div class="delivery-card primary-card">
+            <div class="delivery-card-header">
+              <div class="delivery-icon">⚡</div>
+              <div>
+                <h4>Instant Browser Download (Direct Gateway)</h4>
+                <p>Download directly in this browser without installing software</p>
+              </div>
+            </div>
+            <div class="delivery-actions">
+              <a id="webDirectDownloadBtn" href="#" target="_blank" rel="noopener noreferrer" class="pill-btn primary">
+                <span>Open in Web Downloader</span>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              </a>
+              <button id="downloadThumbnailBtn" class="pill-btn secondary" type="button">
+                <span>Save HD Cover Image</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Method 2: Desktop Native App -->
+          <div class="delivery-card desktop-card">
+            <div class="delivery-card-header">
+              <div class="delivery-icon">💻</div>
+              <div>
+                <h4>OmniStream Pro Desktop (Full 1080p FHD & 4K)</h4>
+                <p>Native speed with local FFmpeg audio multiplexing and zero restrictions</p>
+              </div>
+            </div>
+            <div class="desktop-run-box">
+              <code id="desktopRunCode">git clone https://github.com/ArfaaTaj-savas/OmniStream.git && npm install && npm start</code>
+              <button id="copyRunCmdBtn" class="term-btn" type="button" title="Copy Command">Copy</button>
+            </div>
+            <div class="delivery-actions">
+              <a href="https://github.com/ArfaaTaj-savas/OmniStream#installation--setup" target="_blank" class="pill-btn secondary">
+                <span>View GitHub Setup & Releases</span>
+              </a>
+              <button id="simulateDesktopHudBtn" class="pill-btn secondary" type="button">
+                <span>Preview Desktop HUD</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

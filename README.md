@@ -2,6 +2,11 @@
   <img src="assets/logo.png" width="130" height="130" alt="OmniStream Logo" style="border-radius: 28px; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);" />
   <h1>OmniStream Pro</h1>
   <p><strong>High-performance universal desktop video & audio extractor powered by yt-dlp, FFmpeg, and Electron.</strong></p>
+  <p>
+    <a href="https://omnistream-gamma.vercel.app" target="_blank">
+      <img src="https://img.shields.io/badge/Live%20Web%20Showcase-omnistream--gamma.vercel.app-6366f1?style=for-the-badge&logo=vercel" alt="Live Demo" />
+    </a>
+  </p>
 </div>
 
 ---
