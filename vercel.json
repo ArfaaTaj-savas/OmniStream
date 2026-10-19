@@ -1,0 +1,7 @@
+{
+  "outputDirectory": "src/renderer",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/$1" }
+  ]
+}

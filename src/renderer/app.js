@@ -4,36 +4,57 @@
 
 // Fallback mock for browser inspection & standalone preview
 if (typeof window.downloader === 'undefined') {
+  let progressCb = null;
+  let finishedCb = null;
+  let activeTimer = null;
+
   window.downloader = {
-    chooseFolder: async () => 'C:/Downloads',
-    chooseFile: async () => 'C:/cookies.txt',
-    getDefaultFolder: async () => 'C:/Users/Downloads',
-    openFolder: async folder => console.log('Open folder:', folder),
-    showItemInFolder: async p => console.log('Show item in folder:', p),
+    chooseFolder: async () => 'Downloads (Browser Demo)',
+    chooseFile: async () => 'cookies.txt',
+    getDefaultFolder: async () => 'Downloads (Browser Demo)',
+    openFolder: async folder => showToast('Desktop feature: opens folder in Windows Explorer', 'info'),
+    showItemInFolder: async p => showToast('Desktop feature: reveals file in Windows Explorer', 'info'),
     readClipboard: async () => '',
-    checkEngine: async () => ({ ok: true, version: '2026.08.19' }),
+    checkEngine: async () => ({ ok: true, version: '2026.08.19 (Web Demo)' }),
     inspectUrl: async ({ url }) => ({
       ok: true,
       info: {
         id: 'sample_id',
-        title: 'Demo Stream - 4K Ultra High Definition Video',
-        uploader: 'Universal Media Studio',
-        duration: 345,
+        title: 'OmniStream Demo Stream - 1080p Full HD Video',
+        uploader: 'OmniStream Media Studio',
+        duration: 215,
         thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=640&q=80',
         webpage_url: url,
         extractor: 'youtube',
         formats: [
-          { id: '137+140', resolution: '1080p', ext: 'mp4', filesize: 54500000, height: 1080 },
-          { id: '22', resolution: '720p', ext: 'mp4', filesize: 28000000, height: 720 },
-          { id: '140', resolution: 'Audio only', ext: 'm4a', abr: 128, filesize: 4200000 }
+          { id: '137+140', resolution: '1080p FHD', ext: 'mp4', filesize: 54500000, height: 1080 },
+          { id: '22', resolution: '720p HD', ext: 'mp4', filesize: 28000000, height: 720 },
+          { id: '18', resolution: '360p', ext: 'mp4', filesize: 12000000, height: 360 },
+          { id: '140', resolution: 'Audio only', ext: 'mp3', abr: 320, filesize: 4200000 }
         ]
       }
     }),
-    startDownload: async () => ({ ok: true }),
-    pauseDownload: async () => ({ ok: true }),
-    cancelDownload: async () => ({ ok: true }),
-    onProgress: cb => {},
-    onFinished: cb => {},
+    startDownload: async () => {
+      let pct = 0;
+      clearInterval(activeTimer);
+      activeTimer = setInterval(() => {
+        pct += 20;
+        if (progressCb) {
+          progressCb({ percent: Math.min(pct, 99), speed: '18.4 MB/s', eta: '00:02' });
+        }
+        if (pct >= 100) {
+          clearInterval(activeTimer);
+          if (finishedCb) {
+            finishedCb({ ok: true, filePath: 'OmniStream_Demo.mp4' });
+          }
+        }
+      }, 350);
+      return { ok: true };
+    },
+    pauseDownload: async () => { clearInterval(activeTimer); return { ok: true }; },
+    cancelDownload: async () => { clearInterval(activeTimer); return { ok: true }; },
+    onProgress: cb => { progressCb = cb; },
+    onFinished: cb => { finishedCb = cb; },
     onLog: cb => {},
     onRawLog: cb => {}
   };
