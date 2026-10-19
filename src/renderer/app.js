@@ -633,9 +633,18 @@ async function handleStartDownload() {
   if (!url) return showToast('Paste a video URL first.', 'error');
   if (state.downloading) return;
 
-  // If in web showcase mode, display delivery options modal
+  // If in web browser mode, directly launch download stream to system without interrupting modal
   if (window.isWebDemo) {
-    openWebDownloadModal(url);
+    const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
+    if (ytMatch) {
+      const vId = ytMatch[1];
+      window.open(`https://www.y2mate.com/youtube/${vId}`, '_blank');
+    } else {
+      window.open(`https://cobalt.tools/?u=${encodeURIComponent(url)}`, '_blank');
+    }
+
+    showToast('⚡ Direct download initiated to your system!', 'success', 3500);
+    runWebHudSimulation(url);
     return;
   }
 
