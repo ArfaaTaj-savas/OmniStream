@@ -7,6 +7,7 @@ let mainWindow;
 let activeJob = null;
 
 function createWindow() {
+  const iconPath = path.join(__dirname, '..', 'assets', 'logo.png');
   mainWindow = new BrowserWindow({
     width: 1220,
     height: 860,
@@ -14,6 +15,7 @@ function createWindow() {
     minHeight: 700,
     backgroundColor: '#0a0d14',
     title: 'OmniStream Pro',
+    icon: fs.existsSync(iconPath) ? iconPath : undefined,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

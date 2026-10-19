@@ -18,10 +18,10 @@
   "build": {
     "appId": "com.arfaataj.omnistream",
     "productName": "OmniStream",
-    "files": ["src/**/*", "README.md", "LICENSE"],
+    "files": ["src/**/*", "assets/**/*", "README.md", "LICENSE"],
     "asar": true,
-    "win": { "target": "nsis" },
-    "mac": { "target": "dmg", "category": "public.app-category.video" },
-    "linux": { "target": "AppImage", "category": "AudioVideo" }
+    "win": { "target": "nsis", "icon": "assets/logo.png" },
+    "mac": { "target": "dmg", "category": "public.app-category.video", "icon": "assets/logo.png" },
+    "linux": { "target": "AppImage", "category": "AudioVideo", "icon": "assets/logo.png" }
   }
 }

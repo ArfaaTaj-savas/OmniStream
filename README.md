@@ -1,8 +1,8 @@
-# OmniStream Pro
-
-> High-performance universal desktop video & audio extractor powered by **yt-dlp**, **ffmpeg**, and **Electron**.
-
-![OmniStream Banner](https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80)
+<div align="center">
+  <img src="assets/logo.png" width="130" height="130" alt="OmniStream Logo" style="border-radius: 28px; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);" />
+  <h1>OmniStream Pro</h1>
+  <p><strong>High-performance universal desktop video & audio extractor powered by yt-dlp, FFmpeg, and Electron.</strong></p>
+</div>
 
 ---
 
